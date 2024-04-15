@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.card.mapper.CardMapper">
+
+    <sql id="search">
+        <where>
+            <if test="word!=null and field=='productName'">
+                card_name like CONCAT('%',#{word},'%')
+            </if>
+        </where>
+    </sql>
+
+    <resultMap id="companyMap" type="com.card.dto.CompanyDTO">
+        <id property="companyName" column="company_name"/>
+        <id property="companyCode" column="company_code"/>
+    </resultMap>
+
+    <resultMap id="cardMap" type="com.card.dto.CardDTO">
+        <id property="cardId" column="card_id" />
+        <id property="cardName" column="card_name"/>
+        <id property="cardImg" column="card_img"/>
+        <id property="card_company" column="card_company"/>
+        <id property="anual_fee" column="card_anual_fee"/>
+        <id property="achievement" column="card_achievement"/>
+        <id property="benefit1" column="card_benefit1"/>
+        <id property="benefit2" column="card_benefit2"/>
+        <id property="benefit3" column="card_benefit3"/>
+        <id property="cardUrl" column="card_url"/>
+        <id property="companyCode" column="company_code"/>
+    </resultMap>
+
+    <resultMap type="com.card.dto.FavDTO" id="favMap">
+        <id property="favId" column="fav_id"/>
+        <id property="cardId" column="card_id"/>
+        <id property="userId" column="userid"/>
+    </resultMap>
+
+    <resultMap type="com.card.dto.FavListDTO" id="favListMap">
+        <collection property="fav" resultMap="favMap"/>
+        <collection property="card" resultMap="cardMap"/>
+    </resultMap>
+
+    <resultMap type="com.card.dto.CardCompanyDTO" id="cardCompanyMap">
+        <collection property="company" resultMap="companyMap"/>
+        <collection property="card" resultMap="cardMap"/>
+    </resultMap>
+
+    <select id="cardAllList" resultMap="cardMap">
+        select * from card
+        <include refid="search"/>
+        order by card_id desc
+        limit #{startRow}, #{pageSize}
+    </select>
+
+    <select id="cardList" resultMap="cardMap">
+        select * from card
+        where company_code = #{companyCode}
+        order by card_id desc
+            limit #{startRow}, #{pageSize}
+    </select>
+
+    <select id="cardView" resultMap="cardMap">
+        select * from card
+        where card_id = #{cardtId}
+    </select>
+
+
+    <insert id="reviewRegister">
+        insert into review (content, rating, profile, userid, card_id)
+        values (#{content}, #{rating}, #{profile}, #{userId}, #{cardId})
+    </insert>
+
+    <delete id="deleteReview">
+        delete from review where review_id=#{reviewId}
+    </delete>
+
+
+    <select id="reviewList" resultType="com.card.dto.ReviewDTO">
+        select
+            review_id as reviewId,
+            content, regdate, rating, profile, userid as userId,
+            card_id as cardId
+        from review
+        where card_id = #{cardId}
+        order by regdate desc
+            limit #{startRow}, #{pageSize}
+    </select>
+
+    <insert id="addFav">
+        insert into fav(card_id, userid) values (#{cardId}, #{userId})
+    </insert>
+
+    <select id="favList" resultMap="favListMap">
+        select
+            fav.card_id, fav_id, card_name, card_img, card_company, card_achievement, card_anual_fee
+        from fav
+                 left outer join card on
+            fav.card_id=card.card_id
+        where fav.userid = #{userId}
+    </select>
+
+    <delete id="favDelete">
+        delete from fav where fav_id=#{favId}
+    </delete>
+
+    <select id="reviewCheck" resultType="int">
+        select count(*) from review where userid=#{userId} and card_id=#{cardId}
+    </select>
+
+    <select id="favCheck" resultType="int">
+        select count(*) from fav where userid=#{userId} and card_id=#{cardId}
+    </select>
+
+    <select id="getReviewStar" resultType="int">
+        select rating from review where card_id = #{cardId}
+    </select>
+
+    <select id="getReviewCount" resultType="int">
+        select count(*) from review where card_id = #{cardId}
+    </select>
+
+    <select id="getCompanyCount" resultType="int">
+        select count(*) from card where company_code =#{companyCode}
+    </select>
+
+    <select id="getCardAllCount" resultType="int">
+        select count(*) from card
+    </select>
+
+    <select id="getLatestCard" resultMap="cardMap">
+        select * from card order by card_id desc limit 0,8
+    </select>
+
+    <select id="cardCompany" resultMap="cardCompanyMap">
+        select * from card
+                          inner join company on card.company_code = card.company_code
+        where card.card_id = #{cardId}
+    </select>
+
+</mapper>

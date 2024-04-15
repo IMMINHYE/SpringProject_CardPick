@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!-- CustomLoginSuccess 빈 설정 -->
+    <bean id="customLoginSuccess" class="com.card.domain.CustomLoginSuccess"></bean>
+    <!-- BCryptPasswordEncoder 빈 설정 -->
+    <bean id="bcryptPasswordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder"></bean>
+    <!-- CustomUserDetailsService 빈 설정 -->
+    <bean id="customUserDetailsService" class="com.card.domain.CustomUserDetailsService"></bean>
+
+    <!-- Spring Security 설정 -->
+    <security:http>
+        <!-- URL 패턴 설정 -->
+        <security:intercept-url pattern="/all" access="permitAll"/>
+        <security:intercept-url pattern="/manager" access="hasRole('ROLE_MANAGER')"/>
+        <!-- 폼 로그인 설정 -->
+        <security:form-login login-page="/login" authentication-success-handler-ref="customLoginSuccess"/>
+        <!-- CSRF 보안 설정 비활성화 -->
+        <security:csrf disabled="true"/>
+        <!-- 로그아웃 URL 및 세션 무효화 설정 -->
+        <security:logout logout-url="/logout" invalidate-session="true"/>
+    </security:http>
+
+    <!-- 인증 관리자 설정 -->
+    <security:authentication-manager>
+        <security:authentication-provider user-service-ref="customUserDetailsService">
+            <!-- 패스워드 인코더 설정 -->
+            <security:password-encoder ref="bcryptPasswordEncoder"/>
+        </security:authentication-provider>
+
+    </security:authentication-manager>
+
+</beans>

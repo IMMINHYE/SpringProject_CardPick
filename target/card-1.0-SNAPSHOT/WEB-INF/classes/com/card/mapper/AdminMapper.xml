@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.card.mapper.AdminMapper">
+
+
+<select id="company" resultType="com.card.dto.CompanyDTO">
+select  
+	company_name as categoryName,
+	company_code as companyCode
+ 	from company
+</select>
+
+<insert id="cardRegister">
+insert into card (card_name,card_img,card_company,card_anual_fee,card_achievement,
+                  card_benefit1,card_benefit2,card_benefit3,card_url,company_code)
+	values (#{cardName}, #{cardImg}, #{card_company}, #{anual_fee},
+			#{achievement}, #{benefit1}, #{benefit2},#{benefit3}, #{cardUrl}, #{companyCode})
+</insert>
+
+
+<update id="cardUpdate">
+update card
+set card_name=#{cardName}, card_img=#{cardImg}, card_company=#{card_company},
+	card_anual_fee=#{anual_fee}, card_achievement=#{achievement}, card_benefit1=#{benefit1},
+	card_benefit2=#{benefit2}, card_benefit3=#{benefit3}, card_url=#{cardUrl}, company_code=#{companyCode}
+where card_id = #{cardId}
+</update>
+
+
+<delete id="cardDelete">
+delete from card
+where card_id = #{cardId}
+</delete>
+
+</mapper>

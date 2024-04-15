@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!-- Root Context: 모든 다른 웹 컴포넌트에서 볼 수 있는 공유 리소스를 정의합니다. -->
+    <!-- HikariCP 설정을 위한 빈 -->
+    <bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+        <!-- MySQL 드라이버 클래스명 설정 -->
+        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
+        <!-- JDBC URL 설정 -->
+        <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/carddb?useSSL=false&amp;serverTimezone=Asia/Seoul&amp;characterEncoding=UTF-8"/>
+        <!-- 데이터베이스 사용자명 설정 -->
+        <property name="username" value="lmh"/>
+        <!-- 데이터베이스 암호 설정 -->
+        <property name="password" value="1234"/>
+    </bean>
+
+    <!-- HikariCP 데이터 소스 빈 설정 -->
+    <bean id="ds" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+        <constructor-arg ref="hikariConfig"/>
+    </bean>
+
+    <!-- SqlSessionFactoryBean 설정 -->
+    <bean id="sqlSessionFactoryBean" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!-- 데이터 소스 설정 -->
+        <property name="dataSource" ref="ds"/>
+    </bean>
+
+    <!-- 트랜잭션 관리자 설정 -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <!-- 데이터 소스 설정 -->
+        <property name="dataSource" ref="ds"/>
+    </bean>
+
+    <!-- 애노테이션 기반 트랜잭션 처리 활성화 -->
+    <tx:annotation-driven/>
+    <!-- MyBatis Mapper 인터페이스 스캔 -->
+    <mybatis-spring:scan base-package="com.card.mapper"/>
+    <!-- Spring 컴포넌트 스캔 설정 -->
+    <context:component-scan base-package="com.card.repository, com.card.service"/>
+</beans>
